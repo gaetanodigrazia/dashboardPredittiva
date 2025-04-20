@@ -159,23 +159,15 @@ def input_form():
     sezione_caminetto(data)
     sezione_piscina(data)
 
-    
+    #Derived calculated data
     total_sf_min = data['GrLivArea'] + data['TotalBsmtSF']
     data['Feature1'] = total_sf_min
     data['Feature2'] = data['TotalBsmtSF'] * data["YearRemodAdd"]
+    data['Overall_GrLiv_Garage_Interaction'] = data['OverallQual'] * data['GarageArea'] * data['GrLivArea']
+
 
     data['TotalSF'] = st.slider("Total SF", min_value=total_sf_min, max_value=6000, value=total_sf_min)
     st.markdown(f"ℹ️ Minimo TotalSF: {total_sf_min}")
-
-    overall_interaction_min = data['GrLivArea'] * data['GarageArea']
-    data['Overall_GrLiv_Garage_Interaction'] = st.slider(
-        "GrLiv x Garage Interaction", 
-        min_value=overall_interaction_min, 
-        max_value=10000, 
-        value=overall_interaction_min
-    )
-    st.markdown(f"ℹ️ Minimo Interazione: {overall_interaction_min}")
-
 
 
     st.subheader("🏷️ Categorie codificate")
