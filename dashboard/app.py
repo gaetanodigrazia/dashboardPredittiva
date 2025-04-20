@@ -12,9 +12,15 @@ def input_form():
     data['LotFrontage'] = st.slider("Lot Frontage", 0, 200, 60)
     data['LotArea'] = st.slider("Lot Area", 1000, 100000, 8450)
     data['1stFlrSF'] = st.slider("1st Floor SF", 0, 3000, 1000)
-    data['2ndFlrSF'] = st.slider("2nd Floor SF", 0, 2000, 400)
-    data['GrLivArea'] = data['1stFlrSF'] + data['2ndFlrSF']
-    st.markdown(f"📐 GrLivArea calcolata: `{data['GrLivArea']} m²`")
+    data['has2ndfloor'] = st.checkbox("Has Second Floor", value=False)
+    if data['has2ndfloor']: 
+        data['2ndFlrSF'] = st.slider("2nd Floor SF", 0, 2000, 400)
+        data['GrLivArea'] = data['1stFlrSF'] + data['2ndFlrSF']
+        st.markdown(f"📐 GrLivArea calcolata: `{data['GrLivArea']} m²`")
+    else:
+        data['2ndFlrSF'] = 0
+        data['GrLivArea'] = data['1stFlrSF']
+        st.markdown(f"📐 GrLivArea calcolata: `{data['GrLivArea']} m²`")
 
     data['WoodDeckSF'] = st.slider("Wood Deck SF", 0, 1000, 200)
     data['OpenPorchSF'] = st.slider("Open Porch SF", 0, 1000, 100)
@@ -74,7 +80,6 @@ def input_form():
 
     st.subheader("🏗️ Feature Engineering")
     data['Multifloor'] = st.checkbox("Multifloor", value=True)
-    data['has2ndfloor'] = st.checkbox("Has Second Floor", value=True)
 
     st.subheader("🚗 Garage")
     data['hasgarage'] = st.checkbox("Has Garage", value=False)
