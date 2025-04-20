@@ -1,4 +1,4 @@
-
+session_state_version = ""
 import streamlit as st
 import requests
 
@@ -24,11 +24,35 @@ def input_form():
     data['3SsnPorch'] = st.slider("3 Season Porch", 0, 500, 0)
     data['ScreenPorch'] = st.slider("Screen Porch", 0, 500, 0)
 
+    st.subheader("🏗️ Tipo di costruzione")
+
+    costruzione_tipo = st.selectbox("Tipo di costruzione", ["Nuova costruzione", "Costruzione recente ristrutturata", "Costruzione vecchia"])
+    data["IsNewConstr"] = costruzione_tipo == "Nuova costruzione"
+
+    if costruzione_tipo == "Nuova costruzione":
+        data["YearBuilt"] = st.slider("Year Built", 2003, 2005, 2005)
+        data["IsNew"] = True
+        data["YearRemodAdd"] = data["YearBuilt"]
+
+    elif costruzione_tipo == "Costruzione recente ristrutturata":
+        year_built = st.slider("Year Built", 1870, 2005, 2000)
+        year_remod_default = year_built
+        data["YearBuilt"] = year_built
+        data["YearRemodAdd"] = st.slider("Year Remodeled (≥ Year Built)", year_built, 2005, year_remod_default)
+        data["IsNew"] = True
+
+    elif costruzione_tipo == "Costruzione vecchia":
+        year_built = st.slider("Year Built", 1870, 2005, 1980)
+        year_remod_default = year_built
+        data["YearBuilt"] = year_built
+        data["YearRemodAdd"] = st.slider("Year Remodeled (≥ Year Built)", year_built, 2005, year_remod_default)
+        data["IsNew"] = False
+
+
+
+
     st.subheader("🛠️ Qualità e impianti")
     data['OverallQual'] = st.selectbox("Overall Quality", list(range(1, 11)), index=5)
-    data['YearBuilt'] = st.slider("Year Built", 1870, 2023, 2000)
-    data['YearRemodAdd'] = st.slider("Year Remodeled", 1950, 2023, 2005)
-
     data['MasVnrArea'] = st.slider("Masonry Veneer Area", 0, 1000, 100)
     data['BsmtFinSF1'] = st.slider("Basement Fin SF 1", 0, 2000, 500)
     data['BsmtFinSF2'] = st.slider("Basement Fin SF 2", 0, 2000, 200)
@@ -36,6 +60,8 @@ def input_form():
 
     st.subheader("🛁 Bagni e stanze")
     data['BsmtFullBath'] = st.selectbox("Basement Full Baths", [0, 1, 2], index=0)
+        data['hasbsmt'] = st.checkbox("Has Basement", value=True)
+
     data['FullBath'] = st.selectbox("Full Baths", [0, 1, 2, 3], index=1)
     data['HalfBath'] = st.selectbox("Half Baths", [0, 1, 2], index=0)
     total_bath_calc = data['FullBath'] + 0.5 * data['HalfBath'] + data['BsmtFullBath']
@@ -51,9 +77,8 @@ def input_form():
 
     st.subheader("🏗️ Feature Engineering")
     data['Multifloor'] = st.checkbox("Multifloor", value=True)
-    data['IsNew'] = st.checkbox("Is New", value=False)
     data['has2ndfloor'] = st.checkbox("Has Second Floor", value=True)
-    data['hasbsmt'] = st.checkbox("Has Basement", value=True)
+
 
     st.subheader("🚗 Garage")
     data['hasgarage'] = st.checkbox("Has Garage", value=False)
@@ -128,13 +153,17 @@ def input_form():
 
 input_data = input_form()
 
+# Pulsante per calcolo prezzo
 if st.button("📤 Calcola prezzo"):
-    st.write("📦 Dati inviati al backend:")
-    st.json(input_data)
     response = requests.post("http://model-api:8000/predict", json=input_data)
-
     if response.status_code == 200:
         price = response.json()["predicted_price"]
-        st.success(f"💰 Prezzo stimato: {price:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".") + " €")
+        st.session_state["prezzo"] = price
     else:
+        st.session_state["prezzo"] = None
         st.error("❌ Errore nella comunicazione con il backend.")
+
+# Mostra il prezzo se è già stato calcolato
+if "prezzo" in st.session_state and st.session_state["prezzo"] is not None:
+    formatted_price = f"{st.session_state['prezzo']:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+    st.success(f"💰 Prezzo stimato: {formatted_price} €")
