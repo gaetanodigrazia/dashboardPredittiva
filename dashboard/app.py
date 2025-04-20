@@ -164,10 +164,8 @@ def input_form():
     data['Feature1'] = total_sf_min
     data['Feature2'] = data['TotalBsmtSF'] * data["YearRemodAdd"]
     data['Overall_GrLiv_Garage_Interaction'] = data['OverallQual'] * data['GarageArea'] * data['GrLivArea']
+    data['TotalSF'] = data['TotalBsmtSF'] + data['GrLivArea'] + data['GarageArea']
 
-
-    data['TotalSF'] = st.slider("Total SF", min_value=total_sf_min, max_value=6000, value=total_sf_min)
-    st.markdown(f"ℹ️ Minimo TotalSF: {total_sf_min}")
 
 
     st.subheader("🏷️ Categorie codificate")
