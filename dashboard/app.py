@@ -11,10 +11,12 @@ def sezione_dimensioni(data):
     data['1stFlrSF'] = st.slider("1st Floor SF", 0, 3000, 1000)
     data['has2ndfloor'] = st.checkbox("Has Second Floor", value=False)
     
-    if data['has2ndfloor']: 
+    if data['has2ndfloor']:
+        data['Multifloor'] = True
         data['2ndFlrSF'] = st.slider("2nd Floor SF", 0, 2000, 400)
     else:
         data['2ndFlrSF'] = 0
+        data['Multifloor'] = False
 
     data['GrLivArea'] = data['1stFlrSF'] + data['2ndFlrSF']
     st.markdown(f"📐 GrLivArea calcolata: `{data['GrLivArea']} m²`")
@@ -144,13 +146,6 @@ def input_form():
     sezione_garage(data)
     sezione_caminetto(data)
     sezione_piscina(data)
-
-
-
-
-
-    st.subheader("🏗️ Feature Engineering")
-    data['Multifloor'] = st.checkbox("Multifloor", value=True)
 
     
     total_sf_min = data['GrLivArea'] + data['TotalBsmtSF']
