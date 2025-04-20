@@ -86,7 +86,11 @@ def sezione_seminterrato(data):
         data['BsmtFinSF1'] = st.slider("Bsmt Fin SF 1", 1, 2000, 500)
         data['BsmtFinSF2'] = st.slider("Bsmt Fin SF 2", 1, 2000, 200)
         data['BsmtUnfSF'] = st.slider("Bsmt Unfinished SF", 0, 2000, 300)
+        data['BsmtHalfBath'] = st.selectbox("Bsmt Half Bath", [0, 1, 2], index=0)
         data['BsmtFullBath'] = st.selectbox("Bsmt Full Bath", [0, 1, 2], index=0)
+        total_previous_bath = data['TotalBathrooms'] 
+        data['TotalBathrooms'] = total_previous_bath + data['BsmtFullBath'] + (data['BsmtHalfBath'] *0.5)
+        st.markdown(f"📊 TotalBathrooms calcolato automaticamente: `{data['TotalBathrooms']}`")
         data['BsmtExposure'] = st.selectbox("Bsmt Exposure", list(range(0, 4)), index=0)
         data['TotalBsmtSF'] = data['BsmtFinSF1'] + data['BsmtFinSF2'] + data['BsmtUnfSF']
         st.markdown(f"📊 TotalBsmtSF calcolato automaticamente: `{data['TotalBsmtSF']} m²`")
@@ -103,11 +107,12 @@ def sezione_seminterrato(data):
 
 
 def sezione_bagno(data):
-    st.subheader("🛁 Bagni e stanze")
+    st.subheader("🛁 Bagni e stanze della casa")
     data['FullBath'] = st.selectbox("Full Baths", [0, 1, 2, 3], index=1)
     data['HalfBath'] = st.selectbox("Half Baths", [0, 1, 2], index=0)
-    total_bath_calc = data['FullBath'] + 0.5 * data['HalfBath'] + data['BsmtFullBath']
-    data['TotalBathrooms'] = st.slider("Total Bathrooms", min_value=total_bath_calc, max_value=6.0, value=total_bath_calc, step=0.5)
+    total_bath_calc = data['FullBath'] + 0.5 * data['HalfBath']
+    data['TotalBathrooms'] = total_bath_calc
+    st.markdown(f"📊 TotalBathrooms calcolato automaticamente: `{data['TotalBathrooms']} m²`")
     data['BedroomAbvGr'] = st.slider("Bedrooms Above Ground", 0, 10, 3)
     data['TotRmsAbvGrd'] = st.slider("Total Rooms Above Ground", 1, 15, 6)
 
@@ -169,9 +174,8 @@ def input_form():
     sezione_aree_esterne(data)
     sezione_forma(data)
     sezione_stato_costruzione(data)
-    sezione_seminterrato(data)
-    sezione_qualita_impianti(data)
     sezione_bagno(data)
+    sezione_seminterrato(data)
     sezione_extra(data)
     sezione_garage(data)
     sezione_caminetto(data)
