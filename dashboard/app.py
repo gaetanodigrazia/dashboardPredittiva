@@ -6,8 +6,6 @@ st.title("Dashboard Predittiva Completa - Ordinata")
 
 def sezione_dimensioni(data):
     st.subheader("📏 Dimensioni")
-    data['LotFrontage'] = st.slider("Lot Frontage", 0, 200, 60)
-    data['LotArea'] = st.slider("Lot Area", 1000, 100000, 8450)
     data['1stFlrSF'] = st.slider("1st Floor SF", 0, 3000, 1000)
     data['has2ndfloor'] = st.checkbox("Has Second Floor", value=False)
     
@@ -30,7 +28,7 @@ def sezione_aree_esterne(data):
     data['ScreenPorch'] = st.slider("Screen Porch", 0, 500, 0)
 
 def sezione_forma(data):
-    st.subheader("🏊 Forma del lotto")
+    st.subheader("🏊 Caratteristiche del lotto")
     forma = st.selectbox("Forma del lotto",
         ["Regular", "Slightly irregular", "Moderately Irregular", "Irregular"])
 
@@ -45,6 +43,11 @@ def sezione_forma(data):
 
     if forma == "Irregular":
         data['LotShape'] = 0
+    
+    data['LotFrontage'] = st.slider("Lot Frontage", 0, 200, 60)
+
+    data['LotArea'] = data['GrLivArea'] + data['WoodDeckSF'] + data['OpenPorchSF'] + data['3SsnPorch'] + data['ScreenPorch']
+    st.markdown(f"📐 LotArea calcolata: `{data['LotArea']} m²`")
 
     
 
@@ -96,12 +99,7 @@ def sezione_seminterrato(data):
         data['BsmtFullBath'] = 0
         data['BsmtExposure'] = 0
 
-
-
-def sezione_qualita_impianti(data):
-    st.subheader("🛠️ Qualità e impianti")
-    
-    data['MasVnrArea'] = st.slider("Masonry Veneer Area", 0, 1000, 100)
+        
 
 
 def sezione_bagno(data):
@@ -118,6 +116,8 @@ def sezione_extra(data):
     st.subheader("🔥 Sell information")
     data['MoSold'] = st.slider("Month Sold", 1, 12, 6)
     data['YrSold'] = st.slider("Year Sold", 2006, 2010, 2008)
+    data['SaleType'] = st.selectbox("Sale Type", list(range(0, 10)), index=0)
+    data['SaleCondition'] = st.selectbox("Sale Condition", list(range(0, 6)), index=0)
 
 
 def sezione_garage(data):
@@ -166,8 +166,8 @@ def input_form():
     data['Id'] = st.number_input("ID", min_value=1, value=1001)
 
     sezione_dimensioni(data)
-    sezione_forma(data)
     sezione_aree_esterne(data)
+    sezione_forma(data)
     sezione_stato_costruzione(data)
     sezione_seminterrato(data)
     sezione_qualita_impianti(data)
@@ -188,7 +188,7 @@ def input_form():
 
 
     st.subheader("🏷️ Categorie codificate")
-
+    data['MasVnrArea'] = st.slider("Masonry Veneer Area", 0, 1000, 100)
     data['LandContour'] = st.selectbox("Land Contour", list(range(0, 4)), index=0)
     data['LotConfig'] = st.selectbox("Lot Config", list(range(0, 5)), index=0)
     data['LandSlope'] = st.selectbox("Land Slope", list(range(0, 3)), index=0)
@@ -197,8 +197,7 @@ def input_form():
     data['Fence'] = st.selectbox("Fence", list(range(0, 5)), index=0)
     data['MiscFeature'] = st.selectbox("Misc Feature", list(range(0, 5)), index=0)
     data['Alley'] = st.selectbox("Alley", list(range(0, 3)), index=0)
-    data['SaleType'] = st.selectbox("Sale Type", list(range(0, 10)), index=0)
-    data['SaleCondition'] = st.selectbox("Sale Condition", list(range(0, 6)), index=0)
+
 
     return data
 
