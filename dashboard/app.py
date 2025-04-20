@@ -2,7 +2,7 @@
 import streamlit as st
 import requests
 
-st.title("Dashboard Predittiva Completa - Vincoli Dinamici Estesi")
+st.title("Dashboard Predittiva Completa - Ordinata")
 
 def input_form():
     data = {}
@@ -26,7 +26,6 @@ def input_form():
     data['OpenPorchSF'] = st.slider("Open Porch SF", 0, 1000, 100)
     data['3SsnPorch'] = st.slider("3 Season Porch", 0, 500, 0)
     data['ScreenPorch'] = st.slider("Screen Porch", 0, 500, 0)
-    data['PoolArea'] = st.slider("Pool Area", 0, 1000, 0)
 
     st.subheader("🛠️ Qualità e impianti")
     data['OverallQual'] = st.selectbox("Overall Quality", list(range(1, 11)), index=5)
@@ -42,11 +41,9 @@ def input_form():
     data['BsmtFullBath'] = st.selectbox("Basement Full Baths", [0, 1, 2], index=0)
     data['FullBath'] = st.selectbox("Full Baths", [0, 1, 2, 3], index=1)
     data['HalfBath'] = st.selectbox("Half Baths", [0, 1, 2], index=0)
-
     total_bath_calc = data['FullBath'] + 0.5 * data['HalfBath'] + data['BsmtFullBath']
     data['TotalBathrooms'] = st.slider("Total Bathrooms", min_value=total_bath_calc, max_value=6.0, value=total_bath_calc, step=0.5)
     st.markdown(f"ℹ️ Minimo TotalBathrooms: {total_bath_calc}")
-
     data['BedroomAbvGr'] = st.slider("Bedrooms Above Ground", 0, 10, 3)
     data['TotRmsAbvGrd'] = st.slider("Total Rooms Above Ground", 1, 15, 6)
 
@@ -55,10 +52,9 @@ def input_form():
     data['MoSold'] = st.slider("Month Sold", 1, 12, 6)
     data['YrSold'] = st.slider("Year Sold", 2006, 2010, 2008)
 
-    st.subheader("✅ Feature Engineering")
+    st.subheader("🏗️ Feature Engineering")
     data['Multifloor'] = st.checkbox("Multifloor", value=True)
     data['IsNew'] = st.checkbox("Is New", value=False)
-    data['haspool'] = st.checkbox("Has Pool", value=False)
     data['has2ndfloor'] = st.checkbox("Has Second Floor", value=True)
     data['hasgarage'] = st.checkbox("Has Garage", value=True)
     data['hasbsmt'] = st.checkbox("Has Basement", value=True)
@@ -77,6 +73,15 @@ def input_form():
     )
     st.markdown(f"ℹ️ Minimo Interazione: {overall_interaction_min}")
 
+    st.subheader("🏊 Piscina")
+    data['haspool'] = st.checkbox("Has Pool", value=False)
+    if data['haspool']:
+        data['PoolArea'] = st.slider("Pool Area", 1, 1000, 200)
+        data['PoolQC'] = st.selectbox("Pool QC", list(range(1, 4)), index=0)
+    else:
+        data['PoolArea'] = 0
+        data['PoolQC'] = 0
+
     st.subheader("🏷️ Categorie codificate")
     data['Feature1'] = st.selectbox("Feature 1", list(range(0, 10)), index=1)
     data['Feature2'] = st.selectbox("Feature 2", list(range(0, 10)), index=2)
@@ -91,7 +96,6 @@ def input_form():
     data['GarageFinish'] = st.selectbox("Garage Finish", list(range(0, 3)), index=0)
     data['GarageQual'] = st.selectbox("Garage Quality", list(range(0, 5)), index=0)
     data['GarageCond'] = st.selectbox("Garage Condition", list(range(0, 5)), index=0)
-    data['PoolQC'] = st.selectbox("Pool QC", list(range(0, 4)), index=0)
     data['Fence'] = st.selectbox("Fence", list(range(0, 5)), index=0)
     data['MiscFeature'] = st.selectbox("Misc Feature", list(range(0, 5)), index=0)
     data['Alley'] = st.selectbox("Alley", list(range(0, 3)), index=0)
