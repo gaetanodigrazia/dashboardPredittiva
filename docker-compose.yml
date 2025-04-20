@@ -1,0 +1,23 @@
+
+version: '3'
+
+networks:
+  immobiliare_net:
+    driver: bridge
+
+services:
+  dashboard:
+    build: ./dashboard
+    ports:
+      - "127.0.0.1:8501:8501"
+    depends_on:
+      - model-api
+    networks:
+      - immobiliare_net
+
+  model-api:
+    build: ./model-api
+    ports:
+      - "8000:8000"
+    networks:
+      - immobiliare_net
