@@ -29,6 +29,24 @@ def sezione_aree_esterne(data):
     data['3SsnPorch'] = st.slider("3 Season Porch", 0, 500, 0)
     data['ScreenPorch'] = st.slider("Screen Porch", 0, 500, 0)
 
+def sezione_forma(data):
+    st.subheader("🏊 Forma del lotto")
+    forma = st.selectbox("Forma del lotto",
+        ["Regular", "Slightly irregular", "Moderately Irregular", "Irregular"])
+
+    if forma == "Regular":
+        data['LotShape'] = 3
+        
+    if forma == "Slightly irregular":
+        data['LotShape'] = 2
+        
+    if forma == "Moderately Irregular":
+        data['LotShape'] = 1
+
+    if forma == "Irregular":
+        data['LotShape'] = 0
+
+    
 
 def sezione_stato_costruzione(data):
     st.subheader("🏗️ Tipo di costruzione")
@@ -92,13 +110,12 @@ def sezione_bagno(data):
     data['HalfBath'] = st.selectbox("Half Baths", [0, 1, 2], index=0)
     total_bath_calc = data['FullBath'] + 0.5 * data['HalfBath'] + data['BsmtFullBath']
     data['TotalBathrooms'] = st.slider("Total Bathrooms", min_value=total_bath_calc, max_value=6.0, value=total_bath_calc, step=0.5)
-    st.markdown(f"ℹ️ Minimo TotalBathrooms: {total_bath_calc}")
     data['BedroomAbvGr'] = st.slider("Bedrooms Above Ground", 0, 10, 3)
     data['TotRmsAbvGrd'] = st.slider("Total Rooms Above Ground", 1, 15, 6)
 
 
 def sezione_extra(data):
-    st.subheader("🔥 Extra")
+    st.subheader("🔥 Sell information")
     data['MoSold'] = st.slider("Month Sold", 1, 12, 6)
     data['YrSold'] = st.slider("Year Sold", 2006, 2010, 2008)
 
@@ -149,6 +166,7 @@ def input_form():
     data['Id'] = st.number_input("ID", min_value=1, value=1001)
 
     sezione_dimensioni(data)
+    sezione_forma(data)
     sezione_aree_esterne(data)
     sezione_stato_costruzione(data)
     sezione_seminterrato(data)
@@ -168,8 +186,9 @@ def input_form():
 
 
 
+
     st.subheader("🏷️ Categorie codificate")
-    data['LotShape'] = st.selectbox("Lot Shape", list(range(0, 4)), index=0)
+
     data['LandContour'] = st.selectbox("Land Contour", list(range(0, 4)), index=0)
     data['LotConfig'] = st.selectbox("Lot Config", list(range(0, 5)), index=0)
     data['LandSlope'] = st.selectbox("Land Slope", list(range(0, 3)), index=0)
