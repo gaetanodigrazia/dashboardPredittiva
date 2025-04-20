@@ -32,20 +32,31 @@ def sezione_aree_esterne(data):
 
 def sezione_stato_costruzione(data):
     st.subheader("🏗️ Tipo di costruzione")
-    costruzione_tipo = st.selectbox("Tipo di costruzione", ["Nuova costruzione", "Costruzione recente ristrutturata", "Costruzione vecchia"])
+
+    costruzione_tipo = st.selectbox(
+        "Tipo di costruzione",
+        ["Nuova costruzione", "Costruzione recente ristrutturata", "Costruzione vecchia"]
+    )
+
     data["IsNewConstr"] = costruzione_tipo == "Nuova costruzione"
 
     if costruzione_tipo == "Nuova costruzione":
         data["YearBuilt"] = st.slider("Year Built", 2003, 2005, 2005)
-        data["IsNew"] = True
         data["YearRemodAdd"] = data["YearBuilt"]
-    else:
-        year_built = st.slider("Year Built", 1870, 2005, 2000 if costruzione_tipo == "Costruzione recente ristrutturata" else 1980)
-        year_remod_default = year_built
-        data["YearBuilt"] = year_built
-        data["YearRemodAdd"] = st.slider("Year Remodeled (≥ Year Built)", year_built, 2005, year_remod_default)
-        data["IsNew"] = costruzione_tipo == "Costruzione recente ristrutturata"
+        data["IsNew"] = True
+        data["OverallQual"] = 11
 
+    if costruzione_tipo == "Costruzione recente ristrutturata":
+        data["YearBuilt"] = st.slider("Year Built", 1870, 2005, 2000)
+        data["YearRemodAdd"] = st.slider("Year Remodeled (≥ Year Built)", data["YearBuilt"], 2005, data["YearBuilt"])
+        data["IsNew"] = True
+        data["OverallQual"] = st.selectbox("Overall Quality", list(range(9, 11)), index=1)
+
+    if costruzione_tipo == "Costruzione vecchia":
+        data["YearBuilt"] = st.slider("Year Built", 1870, 2005, 1980)
+        data["YearRemodAdd"] = st.slider("Year Remodeled (≥ Year Built)", data["YearBuilt"], 2005, data["YearBuilt"])
+        data["IsNew"] = False
+        data["OverallQual"] = st.selectbox("Overall Quality", list(range(1, 11)), index=3)
 
 def sezione_seminterrato(data):
     st.subheader("🏗️ Seminterrato")
@@ -70,7 +81,7 @@ def sezione_seminterrato(data):
 
 def sezione_qualita_impianti(data):
     st.subheader("🛠️ Qualità e impianti")
-    data['OverallQual'] = st.selectbox("Overall Quality", list(range(1, 11)), index=5)
+    
     data['MasVnrArea'] = st.slider("Masonry Veneer Area", 0, 1000, 100)
 
 
