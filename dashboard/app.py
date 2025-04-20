@@ -79,6 +79,7 @@ def sezione_seminterrato(data):
         data['BsmtExposure'] = 0
 
 
+
 def sezione_qualita_impianti(data):
     st.subheader("🛠️ Qualità e impianti")
     
@@ -160,6 +161,9 @@ def input_form():
 
     
     total_sf_min = data['GrLivArea'] + data['TotalBsmtSF']
+    data['Feature1'] = total_sf_min
+    data['Feature2'] = data['TotalBsmtSF'] * data["YearRemodAdd"]
+
     data['TotalSF'] = st.slider("Total SF", min_value=total_sf_min, max_value=6000, value=total_sf_min)
     st.markdown(f"ℹ️ Minimo TotalSF: {total_sf_min}")
 
@@ -175,8 +179,6 @@ def input_form():
 
 
     st.subheader("🏷️ Categorie codificate")
-    data['Feature1'] = st.selectbox("Feature 1", list(range(0, 10)), index=1)
-    data['Feature2'] = st.selectbox("Feature 2", list(range(0, 10)), index=2)
     data['LotShape'] = st.selectbox("Lot Shape", list(range(0, 4)), index=0)
     data['LandContour'] = st.selectbox("Land Contour", list(range(0, 4)), index=0)
     data['LotConfig'] = st.selectbox("Lot Config", list(range(0, 5)), index=0)
