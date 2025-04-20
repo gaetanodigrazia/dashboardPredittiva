@@ -19,7 +19,6 @@ def sezione_dimensioni(data):
     data['GrLivArea'] = data['1stFlrSF'] + data['2ndFlrSF']
     st.markdown(f"📐 GrLivArea calcolata: `{data['GrLivArea']} m²`")
 
-
 def sezione_aree_esterne(data):
     st.subheader("📏 Aree esterne")
     data['WoodDeckSF'] = st.slider("Wood Deck SF", 0, 1000, 200)
@@ -48,9 +47,7 @@ def sezione_forma(data):
 
     data['LotArea'] = data['GrLivArea'] + data['WoodDeckSF'] + data['OpenPorchSF'] + data['3SsnPorch'] + data['ScreenPorch']
     st.markdown(f"📐 LotArea calcolata: `{data['LotArea']} m²`")
-
-    
-
+   
 def sezione_stato_costruzione(data):
     st.subheader("🏗️ Tipo di costruzione")
 
@@ -103,9 +100,6 @@ def sezione_seminterrato(data):
         data['BsmtFullBath'] = 0
         data['BsmtExposure'] = 0
 
-        
-
-
 def sezione_bagno(data):
     st.subheader("🛁 Bagni e stanze della casa")
     data['FullBath'] = st.selectbox("Full Baths", [0, 1, 2, 3], index=1)
@@ -114,8 +108,10 @@ def sezione_bagno(data):
     data['TotalBathrooms'] = total_bath_calc
     st.markdown(f"📊 TotalBathrooms calcolato automaticamente: `{data['TotalBathrooms']} m²`")
     data['BedroomAbvGr'] = st.slider("Bedrooms Above Ground", 0, 10, 3)
-    data['TotRmsAbvGrd'] = st.slider("Total Rooms Above Ground", 1, 15, 6)
-
+    
+    # TotRmsAbvGrd deve essere ≥ BedroomAbvGr
+    tot_rms_min = max(1, data['BedroomAbvGr'])
+    data['TotRmsAbvGrd'] = st.slider("Total Rooms Above Ground", tot_rms_min, 15, max(tot_rms_min, 6))
 
 def sezione_extra(data):
     st.subheader("🔥 Sell information")
@@ -123,7 +119,6 @@ def sezione_extra(data):
     data['YrSold'] = st.slider("Year Sold", 2006, 2010, 2008)
     data['SaleType'] = st.selectbox("Sale Type", list(range(0, 10)), index=0)
     data['SaleCondition'] = st.selectbox("Sale Condition", list(range(0, 6)), index=0)
-
 
 def sezione_garage(data):
     st.subheader("🚗 Garage")
@@ -168,18 +163,37 @@ def sezione_caminetto(data):
 
 def input_form():
     data = {}
-    data['Id'] = st.number_input("ID", min_value=1, value=1001)
+    data['Id'] = 1001
 
-    sezione_dimensioni(data)
-    sezione_aree_esterne(data)
-    sezione_forma(data)
-    sezione_stato_costruzione(data)
-    sezione_bagno(data)
-    sezione_seminterrato(data)
-    sezione_extra(data)
-    sezione_garage(data)
-    sezione_caminetto(data)
-    sezione_piscina(data)
+    with st.expander("📂 Mostra sezione Dimensioni"):
+        sezione_dimensioni(data)
+    
+    with st.expander("📂 Mostra sezione Aree Esterne"):
+        sezione_aree_esterne(data)
+    
+    with st.expander("📂 Mostra sezione Forma"):
+        sezione_forma(data)
+    
+    with st.expander("📂 Mostra sezione Costruzione"):
+        sezione_stato_costruzione(data)
+    
+    with st.expander("📂 Mostra sezione Bagno"):
+        sezione_bagno(data)
+    
+    with st.expander("📂 Mostra sezione Seminterrato"):
+        sezione_seminterrato(data)
+    
+    with st.expander("📂 Mostra sezione Extra"):
+        sezione_extra(data)
+    
+    with st.expander("📂 Mostra sezione Garage"):
+        sezione_garage(data)
+    
+    with st.expander("📂 Mostra sezione Caminetto"):
+        sezione_caminetto(data)
+    
+    with st.expander("📂 Mostra sezione Piscina"):
+        sezione_piscina(data)
 
     #Derived calculated data
     total_sf_min = data['GrLivArea'] + data['TotalBsmtSF']
@@ -187,7 +201,6 @@ def input_form():
     data['Feature2'] = data['TotalBsmtSF'] * data["YearRemodAdd"]
     data['Overall_GrLiv_Garage_Interaction'] = data['OverallQual'] * data['GarageArea'] * data['GrLivArea']
     data['TotalSF'] = data['TotalBsmtSF'] + data['GrLivArea'] + data['GarageArea']
-
 
 
 
