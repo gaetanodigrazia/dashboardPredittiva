@@ -2,7 +2,7 @@
 import streamlit as st
 import requests
 
-st.title("Dashboard Predittiva Completa - Ordinata")
+st.title("Preventivo vendita case")
 
 def sezione_dimensioni(data):
     st.subheader("📏 Dimensioni")
