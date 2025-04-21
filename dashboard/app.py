@@ -159,7 +159,18 @@ def sezione_piscina(data):
     data['haspool'] = st.checkbox("Has Pool", value=False)
     if data['haspool']:
         data['PoolArea'] = st.slider("Pool Area", 1, 1000, 200)
-        data['PoolQC'] = st.selectbox("Pool QC", list(range(1, 4)), index=0)
+        poolQC = st.selectbox("Pool QC",
+        ["Excellent", "Good", "Fair"])
+
+        if poolQC == "Excellent":
+            data['PoolQC'] = 0
+        
+        if poolQC == "Fair":
+            data['PoolQC'] = 1
+    
+        if poolQC == "Good":
+            data['PoolQC'] = 2
+
     else:
         data['PoolArea'] = 0
         data['PoolQC'] = 0
@@ -169,7 +180,25 @@ def sezione_caminetto(data):
     data['hasfireplace'] = st.checkbox("Has Fireplace", value=False)
     if data['hasfireplace']:
         data['Fireplaces'] = st.slider("Number of Fireplaces", 1, 5, 1)
-        data['FireplaceQu'] = st.selectbox("Fireplace Quality", list(range(1, 5)), index=0)
+        fireplaceQu = st.selectbox("Fireplace Quality",
+        ["Excellent", "Good", "Average", "Fair", "Poor"])
+
+        if fireplaceQu == "Excellent":
+            data['FireplaceQu'] = 3
+            st.markdown(f"Exceptional Masonry Fireplace")
+        if fireplaceQu == "Good":
+            data['FireplaceQu'] = 1
+            st.markdown(f"Masonry Fireplace in main level")
+        if fireplaceQu == "Average":
+            data['FireplaceQu'] = 0
+            st.markdown(f"Prefabricated Fireplace in main living area or Masonry Fireplace in basement")
+        if fireplaceQu == "Fair":
+            data['FireplaceQu'] = 2
+            st.markdown(f"Prefabricated Fireplace in basement")
+        if fireplaceQu == "Poor":
+            data['FireplaceQu'] = 4
+            st.markdown(f"Ben Franklin Stove")
+
     else:
         data['Fireplaces'] = 0
         data['FireplaceQu'] = 0
