@@ -11,7 +11,7 @@ def sezione_dimensioni(data):
     
     if data['has2ndfloor']:
         data['Multifloor'] = True
-        data['2ndFlrSF'] = st.slider("2nd Floor SF", 0, 2000, 400)
+        data['2ndFlrSF'] = st.slider("2nd Floor SF", 1, 2000, 400)
     else:
         data['2ndFlrSF'] = 0
         data['Multifloor'] = False
