@@ -27,26 +27,40 @@ def sezione_aree_esterne(data):
     data['ScreenPorch'] = st.slider("Screen Porch", 0, 500, 0)
 
 def sezione_forma(data):
-    st.subheader("🏊 Caratteristiche del lotto")
+    st.subheader("🏗️ Caratteristiche del lotto")
     forma = st.selectbox("Forma del lotto",
         ["Regular", "Slightly irregular", "Moderately Irregular", "Irregular"])
 
     if forma == "Regular":
-        data['LotShape'] = 3
+        data['LotShape'] = 0
         
     if forma == "Slightly irregular":
-        data['LotShape'] = 2
+        data['LotShape'] = 1
         
     if forma == "Moderately Irregular":
-        data['LotShape'] = 1
+        data['LotShape'] = 2
 
     if forma == "Irregular":
-        data['LotShape'] = 0
+        data['LotShape'] = 3
     
     data['LotFrontage'] = st.slider("Lot Frontage", 0, 200, 60)
 
     data['LotArea'] = data['GrLivArea'] + data['WoodDeckSF'] + data['OpenPorchSF'] + data['3SsnPorch'] + data['ScreenPorch']
     st.markdown(f"📐 LotArea calcolata: `{data['LotArea']} m²`")
+    data['LandContour'] = st.selectbox("Land Contour", list(range(0, 4)), index=0)
+    data['LotConfig'] = st.selectbox("Lot Config", list(range(0, 5)), index=0)
+    data['LandSlope'] = st.selectbox("Land Slope", list(range(0, 3)), index=0)
+    data['Fence'] = st.selectbox("Fence", list(range(0, 5)), index=0)
+    data['Alley'] = st.selectbox("Alley", list(range(0, 3)), index=0)
+    alley = st.selectbox("Alley",
+        ["Grvl", "Pave"])
+
+    if alley == "Grvl":
+        data['Alley'] = 0
+        
+    if alley == "Slightly irregular":
+        data['Pave'] = 1
+        
    
 def sezione_stato_costruzione(data):
     st.subheader("🏗️ Tipo di costruzione")
@@ -160,6 +174,53 @@ def sezione_caminetto(data):
         data['Fireplaces'] = 0
         data['FireplaceQu'] = 0
 
+def sezione_roof(data):
+    roofStyle = st.selectbox("Roof Style",
+        ["Gable", "Hip", "Gambrel", "Mansard", 
+        "Flat", "Shed"])
+
+    if roofStyle == "Gable":
+        data['RoofStyle'] = 0
+        
+    if roofStyle == "Hip":
+        data['RoofStyle'] = 1
+    
+    if roofStyle == "Gambrel":
+        data['RoofStyle'] = 2
+        
+    if roofStyle == "Mansard":
+        data['RoofStyle'] = 3
+        
+    if roofStyle == "Flat":
+        data['RoofStyle'] = 4
+        
+    if roofStyle == "Shed":
+        data['RoofStyle'] = 5
+    
+    roofMatl = st.selectbox("Roof Material",
+        ["CompShg", "WdShngl", "Metal", "WdShake", 
+        "Membran", "Tar&Grv", "Roll"])
+
+    if roofMatl == "CompShg":
+        data['RoofMatl'] = 0
+        
+    if roofMatl == "WdShngl":
+        data['RoofMatl'] = 1
+    
+    if roofMatl == "Metal":
+        data['RoofMatl'] = 2
+        
+    if roofMatl == "WdShake":
+        data['RoofMatl'] = 3
+        
+    if roofMatl == "Membran":
+        data['RoofMatl'] = 4
+    
+    if roofMatl == "Tar&Grv":
+        data['RoofMatl'] = 5
+        
+    if roofMatl == "Roll":
+        data['RoofMatl'] = 6
 
 def input_form():
     data = {}
@@ -194,6 +255,9 @@ def input_form():
     
     with st.expander("📂 Mostra sezione Piscina"):
         sezione_piscina(data)
+    
+    with st.expander("📂 Mostra sezione Tetto"):
+        sezione_roof(data)
 
     #Derived calculated data
     total_sf_min = data['GrLivArea'] + data['TotalBsmtSF']
@@ -204,16 +268,22 @@ def input_form():
 
 
 
-    st.subheader("🏷️ Categorie codificate")
+    st.subheader("🏷️ Misc Feature")
     data['MasVnrArea'] = st.slider("Masonry Veneer Area", 0, 1000, 100)
-    data['LandContour'] = st.selectbox("Land Contour", list(range(0, 4)), index=0)
-    data['LotConfig'] = st.selectbox("Lot Config", list(range(0, 5)), index=0)
-    data['LandSlope'] = st.selectbox("Land Slope", list(range(0, 3)), index=0)
-    data['RoofStyle'] = st.selectbox("Roof Style", list(range(0, 6)), index=0)
-    data['RoofMatl'] = st.selectbox("Roof Material", list(range(0, 8)), index=0)
-    data['Fence'] = st.selectbox("Fence", list(range(0, 5)), index=0)
-    data['MiscFeature'] = st.selectbox("Misc Feature", list(range(0, 5)), index=0)
-    data['Alley'] = st.selectbox("Alley", list(range(0, 3)), index=0)
+    misc = st.selectbox("Misc Feature",
+        ["Shed", "Gar2", "Othr", "TenC"])
+
+    if misc == "Shed":
+        data['MiscFeature'] = 0
+        
+    if misc == "Gar2":
+        data['MiscFeature'] = 1
+    
+    if misc == "Othr":
+        data['MiscFeature'] = 2
+        
+    if misc == "TenC":
+        data['MiscFeature'] = 3
 
 
     return data
