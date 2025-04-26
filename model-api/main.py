@@ -1,11 +1,67 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, HTTPException, Depends
+from jose import jwt, JWTError
 from pydantic import BaseModel, Field
 import pandas as pd
 import joblib
 import numpy as np
+import requests
+from pydantic import BaseModel
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.backends import default_backend
+import base64
+
+
 
 app = FastAPI()
 model = joblib.load("model/xgb_model.pkl")
+
+# Configurazione Keycloak
+KEYCLOAK_URL = "http://keycloak:8080/realms/immobiliare"  # URL corretto per docker-compose
+ALGORITHMS = ["RS256"]
+jwks_keys = None  # <<< INIZIALIZZAZIONE QUI
+
+def fetch_jwks_keys():
+    global jwks_keys
+    if jwks_keys is None:
+        try:
+            openid_config = requests.get(f"{KEYCLOAK_URL}/.well-known/openid-configuration").json()
+            jwks_uri = openid_config["jwks_uri"]
+            jwks_keys = requests.get(jwks_uri).json()["keys"]
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Errore caricamento JWKS: {e}")
+    return jwks_keys
+
+def get_public_key(token: str):
+    headers = jwt.get_unverified_header(token)
+    keys = fetch_jwks_keys()
+    for key in keys:
+        if key["kid"] == headers["kid"]:
+            e = int.from_bytes(base64.urlsafe_b64decode(key['e'] + '=='), byteorder='big')
+            n = int.from_bytes(base64.urlsafe_b64decode(key['n'] + '=='), byteorder='big')
+
+            public_numbers = rsa.RSAPublicNumbers(e, n)
+            public_key = public_numbers.public_key(default_backend())
+            pem = public_key.public_bytes(
+                encoding=serialization.Encoding.PEM,
+                format=serialization.PublicFormat.SubjectPublicKeyInfo
+            )
+            return pem
+    raise HTTPException(status_code=401, detail="Chiave pubblica non trovata.")
+
+def verify_token(request: Request):
+    auth_header = request.headers.get("Authorization")
+    if not auth_header or not auth_header.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Token mancante o non valido.")
+
+    token = auth_header.split(" ")[1]
+
+    try:
+        public_key_pem = get_public_key(token)
+        payload = jwt.decode(token, public_key_pem, algorithms=ALGORITHMS, audience="account")
+        return payload
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Token non valido o scaduto.")
 
 class InputData(BaseModel):
     Id: int
@@ -69,8 +125,12 @@ class InputData(BaseModel):
     hasfireplace: bool
 
 @app.post("/predict")
-def predict(data: InputData):
+def predict(data: InputData, payload: dict = Depends(verify_token)):
     input_dict = data.dict(by_alias=True)
     df = pd.DataFrame([input_dict])
     prediction = model.predict(df)[0]
     return {"predicted_price": float(round(np.exp(prediction), 2))}
+
+@app.get("/")
+async def root():
+    return {"message": "API attiva"}
