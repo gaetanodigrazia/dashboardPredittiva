@@ -99,13 +99,12 @@ def sezione_seminterrato(data):
         data['BsmtUnfSF'] = st.slider("Bsmt Unfinished SF", 0, 2000, 300)
         data['BsmtHalfBath'] = st.selectbox("Bsmt Half Bath", [0, 1, 2], index=0)
         data['BsmtFullBath'] = st.selectbox("Bsmt Full Bath", [0, 1, 2], index=0)
-        total_previous_bath = data['TotalBathrooms'] 
+        total_previous_bath = data['TotalBathrooms']
         data['TotalBathrooms'] = total_previous_bath + data['BsmtFullBath'] + (data['BsmtHalfBath'] *0.5)
         st.markdown(f"📊 TotalBathrooms calcolato automaticamente: `{data['TotalBathrooms']}`")
         data['BsmtExposure'] = st.selectbox("Bsmt Exposure", list(range(0, 4)), index=0)
         data['TotalBsmtSF'] = data['BsmtFinSF1'] + data['BsmtFinSF2'] + data['BsmtUnfSF']
         st.markdown(f"📊 TotalBsmtSF calcolato automaticamente: `{data['TotalBsmtSF']} m²`")
-
     else:
         data['TotalBsmtSF'] = 0
         data['BsmtFinSF1'] = 0
@@ -319,19 +318,44 @@ def input_form():
 
 input_data = input_form()
 
-# Calcolo prezzo solo su click
-if st.button("📤 Calcola prezzo"):
-    response = requests.post("http://model-api:8000/predict", json=input_data)
-    if response.status_code == 200:
-        st.session_state["prezzo"] = response.json()["predicted_price"]
+
+st.title("Calcola Prezzo")
+
+# Campo per incollare il token
+token = st.text_input("Inserisci il tuo token di autorizzazione", key="token")
+
+# Inizializza session_state se non esiste
+if "autorizzato" not in st.session_state:
+    st.session_state["autorizzato"] = False
+
+# Bottone di autorizzazione
+if st.button("🔐 Autorizza"):
+    if not token:
+        st.error("Per favore inserisci un token valido.")
     else:
-        st.session_state["prezzo"] = None
-        st.error("❌ Errore nella comunicazione con il backend.")
+        st.session_state["autorizzato"] = True
+        st.success("✅ Token salvato, ora puoi calcolare il prezzo!")
+
+# Se autorizzato, mostra il bottone per calcolare il prezzo
+if st.session_state["autorizzato"]:
+    if st.button("📤 Calcola Prezzo"):
+        try:
+            headers = {
+                'Authorization': f"Bearer {st.session_state['token']}",
+                'Content-Type': 'application/json'
+            }
+            response = requests.post("http://model-api:8000/predict", headers=headers, json=input_data)
+
+            if response.status_code == 200:
+                st.session_state["prezzo"] = response.json()["predicted_price"]
+            else:
+                st.session_state["prezzo"] = None
+                st.error(f"❌ Errore: {response.status_code} - {response.text}")
+        except Exception as e:
+            st.session_state["prezzo"] = None
+            st.error(f"⚠️ Errore nella comunicazione: {e}")
 
 # Mostra il prezzo stimato solo se disponibile
 if "prezzo" in st.session_state and st.session_state["prezzo"] is not None:
     formatted_price = f"{st.session_state['prezzo']:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
     st.success(f"💰 Prezzo stimato: {formatted_price} €")
-
-
-

@@ -1,5 +1,4 @@
-
-version: '3'
+version: "3.8"
 
 networks:
   immobiliare_net:
@@ -19,5 +18,18 @@ services:
     build: ./model-api
     ports:
       - "8000:8000"
+    networks:
+      - immobiliare_net
+    environment:
+      - KEYCLOAK_SERVER_URL=http://keycloak:8080/realms/immobiliare
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:22.0
+    command: start-dev
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+    ports:
+      - "8080:8080"
     networks:
       - immobiliare_net
