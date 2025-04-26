@@ -10,8 +10,8 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.backends import default_backend
 import base64
-
-
+from confluent_kafka import Producer
+import json
 
 app = FastAPI()
 model = joblib.load("model/xgb_model.pkl")
@@ -20,7 +20,8 @@ model = joblib.load("model/xgb_model.pkl")
 KEYCLOAK_URL = "http://keycloak:8080/realms/immobiliare"  # URL corretto per docker-compose
 ALGORITHMS = ["RS256"]
 jwks_keys = None  # <<< INIZIALIZZAZIONE QUI
-
+# Configurazione Kafka
+producer = Producer({'bootstrap.servers': 'kafka:9092'})
 def fetch_jwks_keys():
     global jwks_keys
     if jwks_keys is None:
@@ -129,6 +130,24 @@ def predict(data: InputData, payload: dict = Depends(verify_token)):
     input_dict = data.dict(by_alias=True)
     df = pd.DataFrame([input_dict])
     prediction = model.predict(df)[0]
+
+    messaggio = input_dict
+    messaggio["predicted_price"] = float(round(np.exp(prediction), 2))
+
+    # Prendi l'utente dal token
+    user_key = payload.get("preferred_username", "unknown_user")
+
+    try:
+        # Manda il messaggio su Kafka
+        producer.produce(
+            topic="prezzi-predetti",
+            key=user_key.encode('utf-8'),
+            value=json.dumps(messaggio).encode('utf-8')
+        )
+        producer.flush()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Errore invio Kafka: {e}")
+
     return {"predicted_price": float(round(np.exp(prediction), 2))}
 
 @app.get("/")
