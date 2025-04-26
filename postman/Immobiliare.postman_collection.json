@@ -1,0 +1,65 @@
+{
+	"info": {
+		"_postman_id": "01725e6f-536c-43bf-98c4-6f6d6c578341",
+		"name": "Immobiliare",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "43376013",
+		"_collection_link": "https://gaetano-366549.postman.co/workspace/Gaetano's-Workspace~d98969e1-f8cc-4d48-87d4-cd5127287437/collection/43376013-01725e6f-536c-43bf-98c4-6f6d6c578341?action=share&source=collection_link&creator=43376013"
+	},
+	"item": [
+		{
+			"name": "Token",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "grant_type",
+							"value": "password",
+							"type": "text"
+						},
+						{
+							"key": "client_id",
+							"value": "test",
+							"type": "text"
+						},
+						{
+							"key": "username",
+							"value": "test",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "test",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8080/realms/immobiliare/protocol/openid-connect/token",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"realms",
+						"immobiliare",
+						"protocol",
+						"openid-connect",
+						"token"
+					]
+				},
+				"description": "Generated from cURL: curl --request POST \\\n  --url http://localhost:8080/realms/immobiliare/protocol/openid-connect/token \\\n  --header 'Content-Type: application/x-www-form-urlencoded' \\\n  --data 'grant_type=password' \\\n  --data 'client_id=account' \\\n  --data 'username=tizio' \\\n  --data 'password=segreto123'\n"
+			},
+			"response": []
+		}
+	]
+}
