@@ -16,11 +16,11 @@ import json
 app = FastAPI()
 model = joblib.load("model/xgb_model.pkl")
 
-# Configurazione Keycloak
-KEYCLOAK_URL = "http://keycloak:8080/realms/immobiliare"  # URL corretto per docker-compose
+
+KEYCLOAK_URL = "http://keycloak:8080/realms/immobiliare"
 ALGORITHMS = ["RS256"]
-jwks_keys = None  # <<< INIZIALIZZAZIONE QUI
-# Configurazione Kafka
+jwks_keys = None
+
 producer = Producer({'bootstrap.servers': 'kafka:9092'})
 def fetch_jwks_keys():
     global jwks_keys

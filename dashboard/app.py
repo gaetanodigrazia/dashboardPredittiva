@@ -2,7 +2,78 @@
 import streamlit as st
 import requests
 
-st.title("Preventivo vendita case")
+st.title("🏡 Immobiliare - Predizione Prezzo Casa")
+
+if "logged_in" not in st.session_state:
+    st.session_state["logged_in"] = False
+if "token" not in st.session_state:
+    st.session_state["token"] = None
+if "refresh_token" not in st.session_state:
+    st.session_state["refresh_token"] = None
+if "username" not in st.session_state:
+    st.session_state["username"] = None
+
+
+def login(username, password):
+    url = "http://keycloak:8080/realms/immobiliare/protocol/openid-connect/token"
+    data = {
+        "grant_type": "password",
+        "client_id": "test",
+        "username": username,
+        "password": password,
+    }
+    headers = {
+        "Content-Type": "application/x-www-form-urlencoded"
+    }
+    response = requests.post(url, data=data, headers=headers)
+
+    if response.status_code == 200:
+        tokens = response.json()
+        return tokens["access_token"], tokens["refresh_token"]
+    else:
+        return None, None
+# Funzione per refresh del token
+def refresh_token():
+    url = "http://keycloak:8080/realms/immobiliare/protocol/openid-connect/token"
+    data = {
+        "grant_type": "refresh_token",
+        "client_id": "frontend-app",
+        "refresh_token": st.session_state["refresh_token"]
+    }
+    headers = {
+        "Content-Type": "application/x-www-form-urlencoded"
+    }
+    response = requests.post(url, data=data, headers=headers)
+
+    if response.status_code == 200:
+        tokens = response.json()
+        st.session_state["token"] = tokens["access_token"]
+        st.session_state["refresh_token"] = tokens["refresh_token"]
+        return True
+    else:
+        return False
+
+
+if not st.session_state["logged_in"]:
+    st.subheader("🔐 Login Utente")
+    username = st.text_input("Username")
+    password = st.text_input("Password", type="password")
+    
+    if st.button("Login"):
+        token, refresh = login(username, password)
+        if token:
+            st.success("✅ Login effettuato con successo!")
+            st.session_state["logged_in"] = True
+            st.session_state["token"] = token
+            st.session_state["refresh_token"] = refresh
+            st.session_state["username"] = username
+            st.rerun()
+        else:
+            st.error("❌ Login fallito! Controlla username e password.")
+    st.stop()
+
+st.success(f"✅ Bentornato {st.session_state['username']}!")
+st.write("Qui puoi calcolare il prezzo della casa 🚀")
 
 def sezione_dimensioni(data):
     st.subheader("📏 Dimensioni")
@@ -122,7 +193,6 @@ def sezione_bagno(data):
     st.markdown(f"📊 TotalBathrooms calcolato automaticamente: `{data['TotalBathrooms']} m²`")
     data['BedroomAbvGr'] = st.slider("Bedrooms Above Ground", 0, 10, 3)
     
-    # TotRmsAbvGrd deve essere ≥ BedroomAbvGr
     tot_rms_min = max(1, data['BedroomAbvGr'])
     data['TotRmsAbvGrd'] = st.slider("Total Rooms Above Ground", tot_rms_min, 15, max(tot_rms_min, 6))
 
@@ -321,23 +391,7 @@ input_data = input_form()
 
 st.title("Calcola Prezzo")
 
-# Campo per incollare il token
-token = st.text_input("Inserisci il tuo token di autorizzazione", key="token")
-
-# Inizializza session_state se non esiste
-if "autorizzato" not in st.session_state:
-    st.session_state["autorizzato"] = False
-
-# Bottone di autorizzazione
-if st.button("🔐 Autorizza"):
-    if not token:
-        st.error("Per favore inserisci un token valido.")
-    else:
-        st.session_state["autorizzato"] = True
-        st.success("✅ Token salvato, ora puoi calcolare il prezzo!")
-
-# Se autorizzato, mostra il bottone per calcolare il prezzo
-if st.session_state["autorizzato"]:
+if st.session_state["logged_in"]:
     if st.button("📤 Calcola Prezzo"):
         try:
             headers = {
@@ -345,6 +399,15 @@ if st.session_state["autorizzato"]:
                 'Content-Type': 'application/json'
             }
             response = requests.post("http://model-api:8000/predict", headers=headers, json=input_data)
+
+            if response.status_code == 401:
+                if refresh_token():
+                    headers['Authorization'] = f"Bearer {st.session_state['token']}"
+                    response = requests.post("http://model-api:8000/predict", headers=headers, json=input_data)
+                else:
+                    st.error("❌ Sessione scaduta. Effettua nuovamente il login.")
+                    st.session_state["logged_in"] = False
+                    st.stop()
 
             if response.status_code == 200:
                 st.session_state["prezzo"] = response.json()["predicted_price"]
@@ -354,6 +417,8 @@ if st.session_state["autorizzato"]:
         except Exception as e:
             st.session_state["prezzo"] = None
             st.error(f"⚠️ Errore nella comunicazione: {e}")
+else:
+    st.warning("🔐 Effettua prima il login per calcolare il prezzo!")
 
 # Mostra il prezzo stimato solo se disponibile
 if "prezzo" in st.session_state and st.session_state["prezzo"] is not None:
