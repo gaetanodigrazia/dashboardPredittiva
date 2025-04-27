@@ -134,11 +134,10 @@ def predict(data: InputData, payload: dict = Depends(verify_token)):
     messaggio = input_dict
     messaggio["predicted_price"] = float(round(np.exp(prediction), 2))
 
-    # Prendi l'utente dal token
-    user_key = payload.get("preferred_username", "unknown_user")
+    user_key = payload.get("preferred_username")
+
 
     try:
-        # Manda il messaggio su Kafka
         producer.produce(
             topic="prezzi-predetti",
             key=user_key.encode('utf-8'),
