@@ -425,4 +425,4 @@ else:
 # Mostra il prezzo stimato solo se disponibile
 if "prezzo" in st.session_state and st.session_state["prezzo"] is not None:
     formatted_price = f"{st.session_state['prezzo']:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
-    st.success(f"💰 Prezzo stimato: {formatted_price} €")
+    st.success(f"💰 Prezzo stimato: {formatted_price} $")
