@@ -348,23 +348,11 @@ def input_form():
     with st.expander("📂 Mostra sezione Garage"):
         sezione_garage(data)
     
-    with st.expander("📂 Mostra sezione Caminetto"):
-        sezione_caminetto(data)
-    
     with st.expander("📂 Mostra sezione Piscina"):
         sezione_piscina(data)
     
     with st.expander("📂 Mostra sezione Tetto"):
         sezione_roof(data)
-
-    #Derived calculated data
-    total_sf_min = data['GrLivArea'] + data['TotalBsmtSF']
-    data['Feature1'] = total_sf_min
-    data['Feature2'] = data['TotalBsmtSF'] * data["YearRemodAdd"]
-    data['Overall_GrLiv_Garage_Interaction'] = data['OverallQual'] * data['GarageArea'] * data['GrLivArea']
-    data['TotalSF'] = data['TotalBsmtSF'] + data['GrLivArea'] + data['GarageArea']
-
-
 
     st.subheader("🏷️ Misc Feature")
     data['MasVnrArea'] = st.slider("Masonry Veneer Area", 0, 1000, 100)
@@ -382,6 +370,20 @@ def input_form():
         
     if misc == "TenC":
         data['MiscFeature'] = 3
+        
+    with st.expander("📂 Mostra sezione Caminetto"):
+        sezione_caminetto(data)
+    
+    #Derived calculated data
+    total_sf_min = data['GrLivArea'] + data['TotalBsmtSF']
+    data['Feature1'] = total_sf_min
+    data['Feature2'] = data['TotalBsmtSF'] * data["YearRemodAdd"]
+    data['Overall_GrLiv_Garage_Interaction'] = data['OverallQual'] * data['GarageArea'] * data['GrLivArea']
+    data['TotalSF'] = data['TotalBsmtSF'] + data['GrLivArea'] + data['GarageArea']
+
+
+
+
 
 
     return data
