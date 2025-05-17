@@ -10,8 +10,6 @@ services:
         value: admin
       - key: KEYCLOAK_ADMIN_PASSWORD
         value: admin
-    ports:
-      - 8080
 
   - type: web
     name: model-api
@@ -21,8 +19,6 @@ services:
     envVars:
       - key: KEYCLOAK_SERVER_URL
         value: http://keycloak:8080/realms/immobiliare
-    ports:
-      - 8000
 
   - type: web
     name: dashboard
@@ -30,5 +26,3 @@ services:
     dockerfilePath: ./dashboard/Dockerfile
     plan: free
     envVars: []
-    ports:
-      - 8501
