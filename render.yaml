@@ -1,0 +1,35 @@
+services:
+  - type: web
+    name: keycloak
+    env: docker
+    image: quay.io/keycloak/keycloak:22.0
+    dockerCommand: start-dev
+    plan: free
+    envVars:
+      - key: KEYCLOAK_ADMIN
+        value: admin
+      - key: KEYCLOAK_ADMIN_PASSWORD
+        value: admin
+    ports:
+      - 8080
+
+  - type: web
+    name: model-api
+    env: docker
+    dockerfilePath: ./model-api/Dockerfile
+    plan: free
+    envVars:
+      - key: KEYCLOAK_SERVER_URL
+        value: http://keycloak:8080/realms/immobiliare
+    ports:
+      - 8000
+
+  - type: web
+    name: dashboard
+    env: docker
+    dockerfilePath: ./dashboard/Dockerfile
+    plan: free
+    # Dipendenza logica, non gestita direttamente da Render
+    envVars: []
+    ports:
+      - 8501
