@@ -2,7 +2,7 @@ services:
   - type: web
     name: keycloak
     env: docker
-    image: quay.io/keycloak/keycloak:22.0
+    dockerfilePath: ./immobiliare-auth/Dockerfile
     dockerCommand: start-dev
     plan: free
     envVars:
@@ -29,7 +29,6 @@ services:
     env: docker
     dockerfilePath: ./dashboard/Dockerfile
     plan: free
-    # Dipendenza logica, non gestita direttamente da Render
     envVars: []
     ports:
       - 8501
